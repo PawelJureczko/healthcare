@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\UpdateProfileDetailsRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'profile' => $request->user()->profile,
         ]);
     }
 
@@ -38,6 +40,19 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    /**
+     * Update the user's health profile details.
+     */
+    public function updateDetails(UpdateProfileDetailsRequest $request): RedirectResponse
+    {
+        $request->user()->profile()->updateOrCreate(
+            ['user_id' => $request->user()->id],
+            $request->validated()
+        );
+
+        return back()->with('status', 'profile-details-updated');
     }
 
     /**
