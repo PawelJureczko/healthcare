@@ -1098,3 +1098,41 @@ git commit -m "chore: M0 acceptance verification — fundament complete"
 - [x] Both seeded accounts log in successfully — verified two ways: (1) `SeededAccountsTest::both_seeded_accounts_can_authenticate` passes; (2) real HTTP login against the running Sail server (`curl` with cookie jar + CSRF token flow) for both `user1@centrum.local` and `user2@centrum.local` returned `302` redirects to `/dashboard`.
 - [x] User A confirmed to not see User B's profile data (manual + automated) — automated: `DataIsolationTest` (3 assertions) passes. Manual-equivalent: this environment has no GUI browser, so the click-through walkthrough was replicated over real HTTP with `curl` (cookie jars per session, CSRF token fetched from `/login`, `X-XSRF-TOKEN` header on state-changing requests) against the live Sail server, in this order: log in as user1 → `PATCH /profile/details` (age 30, height 180, goal 75, "left knee", "vegetarian") → `GET /profile` confirms values saved → log out → log in as user2 (fresh cookie jar) → `GET /profile` returns `profile: null` (does NOT see user1's data) → `PATCH /profile/details` with different values (age 45, height 165, goal 60, "none", "vegan") → `GET /profile` confirms user2's own values → log out → log back in as user1 → `GET /profile` confirms user1's *original* values (age 30 / 180 / 75.00 / "left knee" / "vegetarian") are unchanged by user2's edits. Database was reset to a clean seeded state (`migrate:fresh --seed`) both before and after this walkthrough; the full test suite was re-run afterward and still passes 30/30.
 - [ ] PWA installed on iPhone home screen, opens in standalone mode — **deferred**: this environment has no physical iPhone and no GUI browser available, so this step cannot be executed here (consistent with Task 8's Step 6, which was skipped for the same reason). Needs a human with an iPhone to install from `/dashboard` (Safari → Share → Add to Home Screen) and confirm the app opens in standalone mode and reaches `/dashboard` after a real login. Underlying pieces (manifest, service worker, meta tags) were verified in Task 8's automated checks.
+
+## M0 — Status: UKOŃCZONY (2026-08-24)
+
+Wszystkich 9 zadań zaimplementowanych i zweryfikowanych indywidualnie
+(subagent-driven-development), plus jeden finalny przegląd całej gałęzi.
+Finalny przegląd znalazł 5 ustaleń "Important" (brak "Critical") —
+wszystkie naprawione i ponownie zweryfikowane przed uznaniem M0 za gotowe:
+
+1. Seeder/test czytały `env()` bezpośrednio — po `config:cache` na produkcji
+   ciche zejście na słabe domyślne hasło. Naprawione przez `config/seed.php`.
+2. Własny limiter logowania (dodatkowy do wbudowanego w Breeze) liczył też
+   udane logowania — mógł zablokować prawowitego użytkownika. Usunięty,
+   zostaje tylko limiter Breeze.
+3. Trait `BelongsToUser` bez dokumentacji; scope jest no-opem poza
+   kontekstem HTTP (queue/CLI) bez udokumentowanej furtki. Dodano docblock
+   + `scopeForUser()` + test przypinający oba zachowania.
+4. Polski UI niekompletny (`APP_NAME=Laravel`, `Profile/Edit.vue` fragmenty
+   po angielsku). Naprawione — pozostałe partiale Breeze (imię/e-mail/hasło)
+   świadomie odłożone.
+5. Seeder nie był idempotentny (`User::factory()->create()` wywalał się przy
+   drugim `db:seed`). Zmieniony na `firstOrCreate`; przy okazji poprawki
+   złapano i naprawiono brakujące `email_verified_at`.
+
+Stan testów po poprawkach: **34/34 passed (80 assertions)** — wyżej w
+sign-offie widnieje liczba sprzed finalnego review (30/72); różnica to
+4 nowe testy dodane razem z poprawkami (throttling logowania, idempotencja
+seedera + regresja login→dashboard, no-op scope poza auth + `forUser()`).
+
+9 ustaleń "Minor" z finalnego review świadomie odłożonych (nieblokujących
+M0) — pełna lista w historii implementacji (usunięty workspace SDD;
+podsumowanie w commit message `0981625` i w tym repo na GitHubie).
+
+Repo połączone i wypchnięte: `https://github.com/PawelJureczko/healthcare`
+(branch `master`). Konwencje ustalone w M0 (izolacja danych, nazwy plików
+Breeze, polski UI, gdzie wolno `env()`) są udokumentowane w
+[`CLAUDE.md`](../../../CLAUDE.md) — obowiązkowa lektura przed M1.
+
+**Gotowe do M1 — Ciało i zdrowie.**
