@@ -9,20 +9,31 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seeds the application's exactly-two user accounts.
-     * Credentials come from .env — never hardcode real passwords here.
+     * Credentials come from config('seed.*') (backed by .env) — never
+     * hardcode real passwords here. Missing config values fail loudly
+     * instead of silently falling back to a weak default password.
+     *
+     * Uses firstOrCreate keyed on email so this is safe to run more than
+     * once (e.g. `migrate --seed` on every deploy).
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => env('SEED_USER_ONE_NAME', 'User One'),
-            'email' => env('SEED_USER_ONE_EMAIL', 'user1@centrum.local'),
-            'password' => bcrypt(env('SEED_USER_ONE_PASSWORD', 'password')),
-        ]);
+        User::firstOrCreate(
+            ['email' => config('seed.user_one.email')],
+            [
+                'name' => config('seed.user_one.name'),
+                'password' => bcrypt(config('seed.user_one.password')),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => env('SEED_USER_TWO_NAME', 'User Two'),
-            'email' => env('SEED_USER_TWO_EMAIL', 'user2@centrum.local'),
-            'password' => bcrypt(env('SEED_USER_TWO_PASSWORD', 'password')),
-        ]);
+        User::firstOrCreate(
+            ['email' => config('seed.user_two.email')],
+            [
+                'name' => config('seed.user_two.name'),
+                'password' => bcrypt(config('seed.user_two.password')),
+                'email_verified_at' => now(),
+            ]
+        );
     }
 }

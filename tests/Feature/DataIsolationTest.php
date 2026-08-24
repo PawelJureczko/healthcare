@@ -36,3 +36,17 @@ test('creating a scoped record auto-assigns the authenticated users id', functio
 
     expect($profile->user_id)->toBe($userA->id);
 });
+
+test('outside an authenticated context the global scope is a no-op and forUser is the escape hatch', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    Profile::factory()->for($userA)->create();
+    Profile::factory()->for($userB)->create();
+
+    // No actingAs() — pins the documented unauthenticated (queue/CLI) behavior.
+    expect(Profile::all())->toHaveCount(2);
+
+    expect(Profile::forUser($userA)->get())->toHaveCount(1)
+        ->and(Profile::forUser($userA)->first()->user_id)->toBe($userA->id);
+});
