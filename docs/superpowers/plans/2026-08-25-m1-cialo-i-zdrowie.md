@@ -3249,3 +3249,54 @@ git commit -m "chore: M1 acceptance verification — ciało i zdrowie complete"
 - [x] Per-user isolation confirmed across all M1 modules; shared lab_markers dictionary confirmed visible to both — as user1, added one entry to body measurements, blood pressure, lab results (incl. the custom marker above), medications, and reminders. Logged out, logged in as `user2@centrum.local`: `GET /dashboard`, `/cialo`, `/cisnienie`, `/leki`, `/przypomnienia` all returned empty per-user collections, and `GET /badania` returned `results: []` for user2 while its `markers` list included both custom markers user1 created (`Ferrytyna User1`, `Ferrytyna User1 v2`) — confirming the shared dictionary is visible across users while scoped personal data (`lab_results`/`lab_values`, body measurements, BP readings, medications, reminders) is not.
 
 Walkthrough data was created against a real seeded DB and then wiped via `./vendor/bin/sail artisan migrate:fresh --seed` to leave a clean state; the full test suite was re-run afterward and stayed green (63/63).
+
+## M1 — Status: UKOŃCZONY (2026-08-25)
+
+Wszystkich 15 zadań zaimplementowanych i zweryfikowanych indywidualnie
+(subagent-driven-development), plus finalny przegląd całej gałęzi (opus).
+Finalny przegląd znalazł 6 ustaleń "Important" (brak "Critical") —
+wszystkie naprawione i ponownie zweryfikowane przed uznaniem M1 za gotowe:
+
+1. Każdy atrybut typu data/czas trafiał do UI jako surowy znacznik
+   ISO-8601 UTC (np. "od 2026-01-01T00:00:00.000000Z" na stronie leków).
+   Naprawione: override `serializeDate()` (`Y-m-d`) na `BodyMeasurement`,
+   `LabResult`, `Medication`, `BloodPressureReading`.
+2. Dashboard ukrywał przypomnienie nigdy niewykonane (`days_until_due
+   === null`) zamiast traktować je jako najpilniejsze — sprzeczność ze
+   stroną Przypomnień. Naprawione: `null` sortuje się jako najpilniejsze,
+   Dashboard.vue jawnie obsługuje ten przypadek.
+3. Wykres wagi nie miał wymaganej przez spec linii średniej 7-dniowej
+   (tylko waga surowa + cel). Naprawione: nowa metoda
+   `WeightTrend::sevenDayAverageSeries()` + testy + trzecia seria na
+   wykresie. Średnie tygodniowe ciśnienia świadomie odłożone (notka w UI,
+   nie pełna agregacja) — mniejszy, niżej priorytetowy fragment tego
+   samego ustalenia.
+4. Strefa czasowa była UTC zamiast Europe/Warsaw — realny problem dla
+   polskiego użytkownika wpisującego lokalne daty/godziny. Naprawione:
+   `APP_TIMEZONE=Europe/Warsaw`, wszystkie podpowiedzi dat/godzin we
+   frontendzie (5 miejsc) przepisane z `toISOString()` (UTC) na budowanie
+   lokalnego stringa (`resources/js/localDateTime.js`).
+5. Ponowny zapis poprawionej wagi z `/cialo` cicho kasował zapisany tego
+   dnia obwód pasa (puste pole → null → nadpisanie przez `updateOrCreate`).
+   Naprawione: kontroler pomija `waist_cm` w payloadzie update gdy jest
+   `null`, zamiast wymuszać nadpisanie.
+6. Formularz szybkiego wpisu wagi na dashboardzie (funkcja "<5s") nie
+   pokazywał żadnego błędu walidacji — cichy brak reakcji. Naprawione:
+   dodano `InputError`.
+
+Stan testów po poprawkach: **69/69 passed (199 assertions)** — wyżej w
+sign-offie widnieje liczba sprzed finalnego review (63/169); różnica to
+6 nowych testów (dashboard z nigdy-niewykonanym przypomnieniem,
+sevenDayAverageSeries, regresja obwodu pasa).
+
+16 ustaleń "Minor" z finalnego review świadomie odłożonych
+(nieblokujących M1) — pełna lista w ledgerze SDD (usunięty po zakończeniu;
+podsumowanie w commit message `699358c`). Najważniejsze do pamięci na
+M2+: brak edycji/usuwania wpisów historycznych nigdzie w M1 (literówka w
+badaniu krwi zostaje na zawsze), drobny dryf idiomów między kontrolerami
+(`forUser()` vs relacja, `authorize()` vs `abort_unless`).
+
+`CLAUDE.md` zaktualizowany o dwie nowe konwencje (serializacja dat,
+strefa czasowa) — obowiązkowa lektura przed M2.
+
+**Gotowe do M2 — Bieganie + Strava.**
