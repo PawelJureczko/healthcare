@@ -4,6 +4,7 @@ use App\Http\Controllers\BloodPressureReadingController;
 use App\Http\Controllers\BodyMeasurementController;
 use App\Http\Controllers\LabMarkerController;
 use App\Http\Controllers\LabResultController;
+use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/badania/nowe', [LabResultController::class, 'create'])->name('lab-results.create');
     Route::post('/lab-results', [LabResultController::class, 'store'])->name('lab-results.store');
     Route::post('/lab-markers', [LabMarkerController::class, 'store'])->name('lab-markers.store');
+
+    Route::get('/leki', [MedicationController::class, 'index'])->name('medications.index');
+    Route::post('/medications', [MedicationController::class, 'store'])->name('medications.store');
+    Route::patch('/medications/{medication}', [MedicationController::class, 'update'])->name('medications.update');
 });
 
 require __DIR__.'/auth.php';
