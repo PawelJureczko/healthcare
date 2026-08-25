@@ -39,6 +39,11 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Panel
                                 </NavLink>
+                                <NavLink :href="route('body.index')" :active="route().current('body.index')">Ciało</NavLink>
+                                <NavLink :href="route('blood-pressure.index')" :active="route().current('blood-pressure.index')">Ciśnienie</NavLink>
+                                <NavLink :href="route('lab-results.index')" :active="route().current('lab-results.*')">Badania</NavLink>
+                                <NavLink :href="route('medications.index')" :active="route().current('medications.index')">Leki</NavLink>
+                                <NavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</NavLink>
                             </div>
                         </div>
 
@@ -146,6 +151,11 @@ const showingNavigationDropdown = ref(false);
                         >
                             Panel
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('body.index')" :active="route().current('body.index')">Ciało</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('blood-pressure.index')" :active="route().current('blood-pressure.index')">Ciśnienie</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('lab-results.index')" :active="route().current('lab-results.*')">Badania</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('medications.index')" :active="route().current('medications.index')">Leki</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
