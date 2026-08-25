@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BloodPressureReadingController;
 use App\Http\Controllers\BodyMeasurementController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -21,6 +22,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cialo', [BodyMeasurementController::class, 'index'])->name('body.index');
     Route::post('/body-measurements', [BodyMeasurementController::class, 'store'])->name('body-measurements.store');
+
+    Route::get('/cisnienie', [BloodPressureReadingController::class, 'index'])->name('blood-pressure.index');
+    Route::post('/blood-pressure-readings', [BloodPressureReadingController::class, 'store'])->name('blood-pressure-readings.store');
 });
 
 require __DIR__.'/auth.php';
