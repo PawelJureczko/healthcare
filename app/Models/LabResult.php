@@ -2,28 +2,25 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class LabMarker extends Model
+class LabResult extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToUser;
 
     protected $fillable = [
-        'name',
-        'unit',
-        'norm_min',
-        'norm_max',
-        'is_predefined',
+        'user_id',
+        'performed_at',
+        'note',
     ];
 
     protected function casts(): array
     {
         return [
-            'norm_min' => 'decimal:2',
-            'norm_max' => 'decimal:2',
-            'is_predefined' => 'boolean',
+            'performed_at' => 'date',
         ];
     }
 

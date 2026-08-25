@@ -63,4 +63,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(BloodPressureReading::class);
     }
+
+    public function labResults(): HasMany
+    {
+        return $this->hasMany(LabResult::class);
+    }
 }
