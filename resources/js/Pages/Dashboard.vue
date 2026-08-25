@@ -3,6 +3,8 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import InputError from '@/Components/InputError.vue';
+import { localDate } from '@/localDateTime';
 
 const props = defineProps({
     weight: { type: Object, required: true },
@@ -10,7 +12,7 @@ const props = defineProps({
 });
 
 const weightForm = useForm({
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     weight_kg: '',
 });
 
@@ -53,6 +55,7 @@ const trendLabel = (trend) => {
                         <div>
                             <label for="quick_weight" class="sr-only">Waga dzisiaj (kg)</label>
                             <TextInput id="quick_weight" type="number" step="0.1" placeholder="Waga dzisiaj (kg)" v-model="weightForm.weight_kg" autofocus />
+                            <InputError class="mt-2" :message="weightForm.errors.weight_kg" />
                         </div>
                         <PrimaryButton :disabled="weightForm.processing">Zapisz</PrimaryButton>
                         <span v-if="weightForm.recentlySuccessful" class="text-sm text-gray-600">Zapisano.</span>
@@ -69,8 +72,13 @@ const trendLabel = (trend) => {
                     <p class="text-sm text-gray-600 mt-1">
                         <template v-if="health.nextReminder">
                             Następne badanie ({{ health.nextReminder.type }}):
-                            <span class="font-medium" :class="health.nextReminder.days_until_due < 0 ? 'text-red-600' : 'text-gray-900'">
-                                {{ health.nextReminder.days_until_due < 0 ? 'zaległe' : `za ${health.nextReminder.days_until_due} dni` }}
+                            <span
+                                class="font-medium"
+                                :class="health.nextReminder.days_until_due === null || health.nextReminder.days_until_due < 0 ? 'text-red-600' : 'text-gray-900'"
+                            >
+                                <template v-if="health.nextReminder.days_until_due === null">nigdy nie wykonane</template>
+                                <template v-else-if="health.nextReminder.days_until_due < 0">zaległe</template>
+                                <template v-else>za {{ health.nextReminder.days_until_due }} dni</template>
                             </span>
                         </template>
                         <template v-else>Brak skonfigurowanych przypomnień o badaniach.</template>

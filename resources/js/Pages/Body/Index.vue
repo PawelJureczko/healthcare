@@ -7,14 +7,16 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { localDate } from '@/localDateTime';
 
 const props = defineProps({
     measurements: { type: Array, default: () => [] },
+    sevenDayAverages: { type: Array, default: () => [] },
     weightGoalKg: { type: [Number, String, null], default: null },
 });
 
 const form = useForm({
-    date: new Date().toISOString().slice(0, 10),
+    date: localDate(),
     weight_kg: '',
     waist_cm: '',
 });
@@ -35,6 +37,13 @@ const weightDatasets = computed(() => {
             data: props.measurements.map((m) => Number(m.weight_kg)),
             borderColor: '#4f46e5',
             tension: 0.2,
+        },
+        {
+            label: 'Średnia 7-dniowa',
+            data: props.sevenDayAverages.map((value) => Number(value)),
+            borderColor: '#059669',
+            tension: 0.2,
+            pointRadius: 0,
         },
     ];
 

@@ -25,4 +25,9 @@ class BodyMeasurement extends Model
             'waist_cm' => 'decimal:2',
         ];
     }
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d');
+    }
 }

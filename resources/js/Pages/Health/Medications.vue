@@ -6,6 +6,7 @@ import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { localDate } from '@/localDateTime';
 
 const props = defineProps({
     medications: { type: Array, default: () => [] },
@@ -14,7 +15,7 @@ const props = defineProps({
 const form = useForm({
     name: '',
     dose: '',
-    started_at: new Date().toISOString().slice(0, 10),
+    started_at: localDate(),
 });
 
 const submit = () => {
@@ -25,7 +26,7 @@ const submit = () => {
 };
 
 const stop = (medication) => {
-    useForm({ stopped_at: new Date().toISOString().slice(0, 10) }).patch(
+    useForm({ stopped_at: localDate() }).patch(
         route('medications.update', medication.id),
         { preserveScroll: true }
     );

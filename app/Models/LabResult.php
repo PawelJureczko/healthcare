@@ -28,4 +28,9 @@ class LabResult extends Model
     {
         return $this->hasMany(LabValue::class);
     }
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d');
+    }
 }

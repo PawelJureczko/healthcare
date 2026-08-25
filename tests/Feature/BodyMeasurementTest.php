@@ -33,6 +33,28 @@ test('logging a second entry for the same date updates it instead of duplicating
         ->and(BodyMeasurement::where('user_id', $user->id)->first()->weight_kg)->toEqual(89.0);
 });
 
+test('resubmitting weight without waist_cm does not erase an existing waist measurement', function () {
+    $user = User::factory()->create();
+    BodyMeasurement::factory()->for($user)->create([
+        'date' => '2026-08-25',
+        'weight_kg' => 90.0,
+        'waist_cm' => 95.5,
+    ]);
+
+    $this->actingAs($user)->post('/body-measurements', [
+        'date' => '2026-08-25',
+        'weight_kg' => 89.0,
+        'waist_cm' => '',
+    ]);
+
+    $this->assertDatabaseHas('body_measurements', [
+        'user_id' => $user->id,
+        'date' => '2026-08-25',
+        'weight_kg' => 89.0,
+        'waist_cm' => 95.5,
+    ]);
+});
+
 test('a user cannot see another users body measurements on the history page', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();

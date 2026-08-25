@@ -33,6 +33,45 @@ test('dashboard shows the next lab reminder due date', function () {
     );
 });
 
+test('a never-completed reminder appears as the next reminder instead of being hidden', function () {
+    $user = User::factory()->create();
+    Reminder::factory()->for($user)->create([
+        'type' => 'Lipidogram',
+        'interval_days' => 90,
+        'last_completed_at' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Dashboard')
+        ->where('health.nextReminder.type', 'Lipidogram')
+        ->where('health.nextReminder.days_until_due', null)
+    );
+});
+
+test('a never-completed reminder is more urgent than one with days remaining', function () {
+    $user = User::factory()->create();
+    Reminder::factory()->for($user)->create([
+        'type' => 'Morfologia',
+        'interval_days' => 90,
+        'last_completed_at' => now()->subDays(10)->toDateString(),
+    ]);
+    Reminder::factory()->for($user)->create([
+        'type' => 'Lipidogram',
+        'interval_days' => 90,
+        'last_completed_at' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('Dashboard')
+        ->where('health.nextReminder.type', 'Lipidogram')
+        ->where('health.nextReminder.days_until_due', null)
+    );
+});
+
 test('dashboard requires authentication', function () {
     $this->get('/dashboard')->assertRedirect('/login');
 });

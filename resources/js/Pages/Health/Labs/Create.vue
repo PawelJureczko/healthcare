@@ -7,13 +7,14 @@ import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { localDate } from '@/localDateTime';
 
 const props = defineProps({
     markers: { type: Array, required: true },
 });
 
 const form = useForm({
-    performed_at: new Date().toISOString().slice(0, 10),
+    performed_at: localDate(),
     note: '',
     values: props.markers.map((marker) => ({ lab_marker_id: marker.id, value: '' })),
 });

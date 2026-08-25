@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBodyMeasurementRequest;
 use App\Models\BodyMeasurement;
+use App\Services\WeightTrend;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -19,15 +20,22 @@ class BodyMeasurementController extends Controller
 
         return Inertia::render('Body/Index', [
             'measurements' => $measurements,
+            'sevenDayAverages' => WeightTrend::sevenDayAverageSeries($measurements->toArray()),
             'weightGoalKg' => $request->user()->profile?->weight_goal_kg,
         ]);
     }
 
     public function store(StoreBodyMeasurementRequest $request): RedirectResponse
     {
+        $data = $request->validated();
+
+        if (($data['waist_cm'] ?? null) === null) {
+            unset($data['waist_cm']);
+        }
+
         $request->user()->bodyMeasurements()->updateOrCreate(
-            ['date' => $request->validated('date')],
-            $request->validated()
+            ['date' => $data['date']],
+            $data
         );
 
         return back()->with('status', 'body-measurement-saved');

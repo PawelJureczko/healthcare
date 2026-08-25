@@ -25,8 +25,7 @@ class DashboardController extends Controller
                 'type' => $reminder->type,
                 'days_until_due' => ReminderStatus::daysUntilDue($reminder),
             ])
-            ->filter(fn ($r) => $r['days_until_due'] !== null)
-            ->sortBy('days_until_due')
+            ->sortBy(fn ($r) => $r['days_until_due'] ?? -INF)
             ->first();
 
         $currentWeight = WeightTrend::sevenDayAverage($user);

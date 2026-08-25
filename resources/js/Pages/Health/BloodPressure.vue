@@ -7,13 +7,14 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { localDateTime } from '@/localDateTime';
 
 const props = defineProps({
     readings: { type: Array, default: () => [] },
 });
 
 const form = useForm({
-    measured_at: new Date().toISOString().slice(0, 16),
+    measured_at: localDateTime(),
     systolic: '',
     diastolic: '',
     resting_pulse: '',
@@ -77,6 +78,7 @@ const datasets = computed(() => [
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Historia</h3>
                     <LineChart v-if="readings.length" :labels="labels" :datasets="datasets" />
                     <p v-else class="text-sm text-gray-600">Brak jeszcze żadnych pomiarów.</p>
+                    <p class="text-xs text-gray-400 mt-3">Uwaga: średnie tygodniowe będą dodane w kolejnej iteracji.</p>
                 </div>
             </div>
         </div>

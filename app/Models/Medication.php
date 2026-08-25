@@ -30,4 +30,9 @@ class Medication extends Model
     {
         return $this->stopped_at === null;
     }
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d');
+    }
 }

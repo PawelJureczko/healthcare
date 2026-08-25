@@ -125,6 +125,38 @@ zablokować prawowitego użytkownika.
 produkcji `env()` poza configiem zwraca `null`. Seed danych startowych czyta
 przez `config('seed.*')`, nie `env()` bezpośrednio.
 
+### Serializacja dat: `serializeDate()` na modelach z castem `date`
+
+Domyślnie Laravel serializuje każdy atrybut z castem `date`/`datetime` do
+JSON jako pełny znacznik ISO-8601 UTC (`2026-01-01T00:00:00.000000Z`) — źle
+wygląda w polskojęzycznym, datowym (nie czasowym) UI. Modele z atrybutem
+typu `date` dostają override:
+
+```php
+protected function serializeDate(\DateTimeInterface $date): string
+{
+    return $date->format('Y-m-d');
+}
+```
+
+Ma to obecnie `BodyMeasurement`, `LabResult`, `Medication` (atrybuty typu
+`date`) oraz `BloodPressureReading` (atrybut `measured_at` typu `datetime`
+— dla M1 formatowany tak samo jako `Y-m-d`, bo wykres rysuje tylko po
+dniach, a godzinę i tak wpisuje się osobno w formularzu). Nowy model z
+atrybutem daty w M2+ powinien dostać ten sam override, jeśli trafia do
+Inertia props.
+
+### Strefa czasowa: `Europe/Warsaw`, nie UTC
+
+`config/app.php` (`APP_TIMEZONE` w `.env`) ustawia `Europe/Warsaw` — to
+wpływa na `now()`, `Carbon::today()` i domyślne daty wszędzie w backendzie.
+Konsekwencja dla frontendu: **nie używaj `new Date().toISOString()`** do
+podpowiadania dzisiejszej daty/godziny w formularzach — to zawsze UTC i
+przy dobrym wietrze da inny dzień/godzinę niż lokalny zegar użytkownika.
+Zamiast tego użyj `localDate()` / `localDateTime()` z
+`resources/js/localDateTime.js`, które budują string z lokalnych getterów
+(`getFullYear()`, `getHours()` itd.).
+
 ## Milestone'y
 
 M0 (fundament) ukończony — patrz plan wyżej po pełną listę zadań i decyzji.

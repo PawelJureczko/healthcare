@@ -35,4 +35,37 @@ class WeightTrend
 
         return round($current - $previous, 1);
     }
+
+    /**
+     * Compute a trailing 7-calendar-day average for a chart series.
+     *
+     * @param  array<int, array{date: string, weight_kg: float}>  $measurements  Sorted ascending by date.
+     * @return array<int, float> Same length as $measurements, one average per entry.
+     */
+    public static function sevenDayAverageSeries(array $measurements): array
+    {
+        $dates = array_map(fn ($m) => Carbon::parse($m['date']), $measurements);
+
+        $result = [];
+        $windowStart = 0;
+
+        for ($i = 0; $i < count($measurements); $i++) {
+            $windowFrom = $dates[$i]->copy()->subDays(6);
+
+            while ($dates[$windowStart]->lt($windowFrom)) {
+                $windowStart++;
+            }
+
+            $sum = 0.0;
+            $count = 0;
+            for ($j = $windowStart; $j <= $i; $j++) {
+                $sum += (float) $measurements[$j]['weight_kg'];
+                $count++;
+            }
+
+            $result[] = round($sum / $count, 1);
+        }
+
+        return $result;
+    }
 }
