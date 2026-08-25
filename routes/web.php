@@ -6,6 +6,7 @@ use App\Http\Controllers\LabMarkerController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReminderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,6 +38,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/leki', [MedicationController::class, 'index'])->name('medications.index');
     Route::post('/medications', [MedicationController::class, 'store'])->name('medications.store');
     Route::patch('/medications/{medication}', [MedicationController::class, 'update'])->name('medications.update');
+
+    Route::get('/przypomnienia', [ReminderController::class, 'index'])->name('reminders.index');
+    Route::post('/reminders', [ReminderController::class, 'store'])->name('reminders.store');
+    Route::patch('/reminders/{reminder}', [ReminderController::class, 'update'])->name('reminders.update');
 });
 
 require __DIR__.'/auth.php';
