@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -9,6 +9,7 @@ import { localDate } from '@/localDateTime';
 const props = defineProps({
     weight: { type: Object, required: true },
     health: { type: Object, required: true },
+    running: { type: Object, required: true },
 });
 
 const weightForm = useForm({
@@ -28,6 +29,8 @@ const trendLabel = (trend) => {
     if (trend === 0) return 'bez zmian';
     return trend < 0 ? `↓ ${Math.abs(trend)} kg` : `↑ ${trend} kg`;
 };
+
+const syncStrava = () => router.post(route('strava.sync'));
 </script>
 
 <template>
@@ -84,6 +87,25 @@ const trendLabel = (trend) => {
                         <template v-else>Brak skonfigurowanych przypomnień o badaniach.</template>
                     </p>
                     <Link :href="route('reminders.index')" class="mt-3 inline-block text-sm text-indigo-600 hover:underline">Zarządzaj przypomnieniami →</Link>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Bieganie</h3>
+                    <template v-if="running.activeGoal">
+                        <p class="text-sm text-gray-600 mb-2">
+                            {{ running.activeGoal.target_distance_km }} km do {{ running.activeGoal.target_date }}
+                        </p>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-indigo-600 h-2.5 rounded-full" :style="{ width: running.activeGoal.progressPercent + '%' }"></div>
+                        </div>
+                    </template>
+                    <p v-else class="text-sm text-gray-600">Brak ustawionego celu biegowego.</p>
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <button v-if="running.stravaConnected" @click="syncStrava" class="text-sm text-indigo-600 hover:underline">
+                            Pobierz ze Stravy
+                        </button>
+                        <Link :href="route('runs.index')" class="text-sm text-indigo-600 hover:underline">Zobacz biegi →</Link>
+                    </div>
                 </div>
             </div>
         </div>

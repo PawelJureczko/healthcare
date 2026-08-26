@@ -75,3 +75,30 @@ test('a never-completed reminder is more urgent than one with days remaining', f
 test('dashboard requires authentication', function () {
     $this->get('/dashboard')->assertRedirect('/login');
 });
+
+test('the dashboard exposes the active run goal and strava connection state', function () {
+    $user = \App\Models\User::factory()->create();
+    \App\Models\TrainingGoal::factory()->for($user)->create([
+        'target_distance_m' => 7500,
+        'target_date' => '2026-09-13',
+        'status' => 'active',
+    ]);
+    \App\Models\StravaConnection::factory()->for($user)->create();
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('running.activeGoal.target_distance_km', 7.5)
+        ->where('running.activeGoal.target_date', '2026-09-13')
+        ->where('running.stravaConnected', true));
+});
+
+test('the dashboard shows no active goal when none exists', function () {
+    $user = \App\Models\User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('running.activeGoal', null)
+        ->where('running.stravaConnected', false));
+});
