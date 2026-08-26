@@ -8,6 +8,7 @@ use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\Strava\StravaConnectionController;
 use App\Http\Controllers\Strava\StravaSyncController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/reminders/{reminder}', [ReminderController::class, 'update'])->name('reminders.update');
 
     Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');
+    Route::get('/integracje/strava/polacz', [StravaConnectionController::class, 'redirect'])->name('strava.connect');
+    Route::get('/integracje/strava/callback', [StravaConnectionController::class, 'callback'])->name('strava.callback');
+    Route::delete('/integracje/strava', [StravaConnectionController::class, 'destroy'])->name('strava.disconnect');
 });
 
 require __DIR__.'/auth.php';

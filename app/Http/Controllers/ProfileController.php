@@ -23,6 +23,7 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
             'profile' => $request->user()->profile,
+            'stravaConnected' => (bool) $request->user()->stravaConnection,
         ]);
     }
 
