@@ -75,6 +75,8 @@ const flashMessage = computed(() => {
                                 <NavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</NavLink>
                                 <NavLink :href="route('runs.index')" :active="route().current('runs.index')">Bieganie</NavLink>
                                 <NavLink :href="route('sport-sessions.index')" :active="route().current('sport-sessions.index')">Sporty</NavLink>
+                                <NavLink :href="route('gym-workouts.index')" :active="route().current('gym-workouts.*')">Siłownia</NavLink>
+                                <NavLink :href="route('exercises.index')" :active="route().current('exercises.*')">Ćwiczenia</NavLink>
                             </div>
                         </div>
 
@@ -189,6 +191,8 @@ const flashMessage = computed(() => {
                         <ResponsiveNavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('runs.index')" :active="route().current('runs.index')">Bieganie</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('sport-sessions.index')" :active="route().current('sport-sessions.index')">Sporty</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('gym-workouts.index')" :active="route().current('gym-workouts.*')">Siłownia</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('exercises.index')" :active="route().current('exercises.*')">Ćwiczenia</ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
