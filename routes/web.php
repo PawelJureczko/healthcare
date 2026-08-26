@@ -9,6 +9,7 @@ use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\RunController;
+use App\Http\Controllers\SportSessionController;
 use App\Http\Controllers\Strava\StravaConnectionController;
 use App\Http\Controllers\Strava\StravaSyncController;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/biegi', [RunController::class, 'index'])->name('runs.index');
     Route::get('/biegi/nowy', [RunController::class, 'create'])->name('runs.create');
     Route::post('/runs', [RunController::class, 'store'])->name('runs.store');
+
+    Route::get('/sporty', [SportSessionController::class, 'index'])->name('sport-sessions.index');
+    Route::get('/sporty/nowy', [SportSessionController::class, 'create'])->name('sport-sessions.create');
+    Route::post('/sport-sessions', [SportSessionController::class, 'store'])->name('sport-sessions.store');
 
     Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');
     Route::get('/integracje/strava/polacz', [StravaConnectionController::class, 'redirect'])->name('strava.connect');
