@@ -37,7 +37,7 @@ class StravaClient
 
     public function ensureFreshToken(StravaConnection $connection): StravaConnection
     {
-        if ($connection->token_expires_at->isFuture()) {
+        if ($connection->token_expires_at->isAfter(now()->addMinutes(5))) {
             return $connection;
         }
 

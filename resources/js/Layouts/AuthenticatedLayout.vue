@@ -1,13 +1,42 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+
+const statusMessages = {
+    'strava-connected': 'Konto Strava połączone.',
+    'strava-connect-failed': 'Nie udało się połączyć konta Strava. Spróbuj ponownie.',
+    'strava-disconnected': 'Konto Strava rozłączone.',
+    'strava-not-connected': 'Najpierw połącz konto Strava w profilu.',
+    'strava-sync-failed': 'Synchronizacja ze Stravą nie powiodła się. Spróbuj ponownie.',
+    'run-saved': 'Bieg zapisany.',
+    'goal-saved': 'Cel biegowy ustawiony.',
+    'sport-session-saved': 'Sesja sportowa zapisana.',
+};
+
+const page = usePage();
+
+const flashMessage = computed(() => {
+    const status = page.props.flash?.status;
+
+    if (!status) {
+        return null;
+    }
+
+    if (status.startsWith('strava-synced:')) {
+        const count = Number.parseInt(status.split(':')[1], 10) || 0;
+
+        return `Zaimportowano ${count} nowych aktywności.`;
+    }
+
+    return statusMessages[status] ?? 'Zapisano.';
+});
 </script>
 
 <template>
@@ -44,6 +73,8 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('lab-results.index')" :active="route().current('lab-results.*')">Badania</NavLink>
                                 <NavLink :href="route('medications.index')" :active="route().current('medications.index')">Leki</NavLink>
                                 <NavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</NavLink>
+                                <NavLink :href="route('runs.index')" :active="route().current('runs.index')">Bieganie</NavLink>
+                                <NavLink :href="route('sport-sessions.index')" :active="route().current('sport-sessions.index')">Sporty</NavLink>
                             </div>
                         </div>
 
@@ -156,6 +187,8 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('lab-results.index')" :active="route().current('lab-results.*')">Badania</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('medications.index')" :active="route().current('medications.index')">Leki</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('reminders.index')" :active="route().current('reminders.index')">Przypomnienia</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('runs.index')" :active="route().current('runs.index')">Bieganie</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('sport-sessions.index')" :active="route().current('sport-sessions.index')">Sporty</ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -188,6 +221,16 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
             </nav>
+
+            <!-- Flash Status Banner -->
+            <div
+                v-if="flashMessage"
+                class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8"
+            >
+                <div class="rounded-md bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
+                    {{ flashMessage }}
+                </div>
+            </div>
 
             <!-- Page Heading -->
             <header

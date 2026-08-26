@@ -23,7 +23,7 @@ class StravaConnectionController extends Controller
     {
         $expectedState = $request->session()->pull('strava_oauth_state');
 
-        if (! $request->has('code') || $request->get('state') !== $expectedState) {
+        if (! $request->has('code') || ! is_string($expectedState) || ! hash_equals($expectedState, (string) $request->query('state'))) {
             return redirect()->route('profile.edit')->with('status', 'strava-connect-failed');
         }
 

@@ -17,7 +17,11 @@ class StravaSyncController extends Controller
             return back()->with('status', 'strava-not-connected');
         }
 
-        $imported = $syncService->sync($connection);
+        try {
+            $imported = $syncService->sync($connection);
+        } catch (\Throwable) {
+            return back()->with('status', 'strava-sync-failed');
+        }
 
         return back()->with('status', "strava-synced:{$imported}");
     }

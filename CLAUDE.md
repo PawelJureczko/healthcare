@@ -157,9 +157,35 @@ Zamiast tego użyj `localDate()` / `localDateTime()` z
 `resources/js/localDateTime.js`, które budują string z lokalnych getterów
 (`getFullYear()`, `getHours()` itd.).
 
+### Integracje zewnętrzne (OAuth2) — ręcznie przez `Http`, nie Socialite
+
+Gdy potrzebna jest pełna kontrola nad przechowywaniem/odświeżaniem refresh
+tokenów per użytkownik (jak w Strava), OAuth2 implementujemy ręcznie przez
+`Http` facade w dedykowanej klasie klienta w `app/Services/<Dostawca>/`
+(np. `App\Services\Strava\StravaClient`), a nie przez Socialite — Socialite
+nie daje wygodnego dostępu do przechowywania/odświeżania refresh tokenów
+per użytkownik w naszym modelu danych.
+
+### Testy integracji zewnętrznych — zawsze `Http::fake()`
+
+Żaden test nie może wykonywać prawdziwych wywołań sieciowych do
+zewnętrznych API (Strava, docelowo Claude API w M4) — zawsze
+`Http::fake([...])` + `Http::assertSent(...)`.
+
+### Tabele podrzędne bez własnego `user_id`
+
+Wzorzec izolacji tabel podrzędnych, użyty już trzykrotnie (`LabValue`,
+`Run`, `SportSession`): tabela szczegółowa 1:1 lub N:1 z rodzicem
+zawierającym dane osobiste NIE dostaje własnego `user_id`/`BelongsToUser`
+— izolacja jest dziedziczona transytywnie, zawsze przez zapytanie przez
+`forUser()` rodzica (np. `Workout::forUser($user)->with('run')`), nigdy
+przez bezpośrednie zapytanie do tabeli podrzędnej poza wewnętrznym kodem
+deduplikacji/lookupu.
+
 ## Milestone'y
 
-M0 (fundament) ukończony — patrz plan wyżej po pełną listę zadań i decyzji.
-Kolejność dalszych milestone'ów: M1 Ciało i zdrowie → M2 Bieganie + Strava →
-M3 Siłownia → M4 Trener AI → M5 Posiłki → M6 Powiadomienia i motywacja →
-M7 Wdrożenie produkcyjne. Szczegóły każdego w `specyfikacja.md` §8.
+M0 (fundament) i M1 (Ciało i zdrowie) ukończone, M2 (Bieganie + Strava)
+ukończony — patrz plan wyżej po pełną listę zadań i decyzji. Kolejność
+dalszych milestone'ów: M3 Siłownia → M4 Trener AI → M5 Posiłki →
+M6 Powiadomienia i motywacja → M7 Wdrożenie produkcyjne. Szczegóły każdego
+w `specyfikacja.md` §8.

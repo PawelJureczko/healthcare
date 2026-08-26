@@ -40,7 +40,7 @@ const subtypeLabel = (subtype) => ({ table_tennis: 'Tenis stołowy', squash: 'Sq
                                 <td class="py-2">{{ session.date }}</td>
                                 <td class="py-2">{{ subtypeLabel(session.sport_subtype) }}</td>
                                 <td class="py-2">{{ session.duration_min }} min</td>
-                                <td class="py-2">{{ session.intensity }}/5</td>
+                                <td class="py-2">{{ session.intensity !== null ? `${session.intensity}/5` : '—' }}</td>
                                 <td class="py-2">{{ session.source === 'strava' ? 'Strava' : 'ręczny' }}</td>
                             </tr>
                         </tbody>

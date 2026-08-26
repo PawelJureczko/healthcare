@@ -23,6 +23,15 @@ test('callback with a mismatched state does not create a connection', function (
     expect(StravaConnection::count())->toBe(0);
 });
 
+test('callback with no pending state in session and no state param does not create a connection', function () {
+    $user = User::factory()->create();
+    // No withSession() call — simulates a session with nothing pending.
+
+    $this->actingAs($user)->get('/integracje/strava/callback?code=attacker-code');
+
+    expect(StravaConnection::count())->toBe(0);
+});
+
 test('callback with a matching state exchanges the code and stores the connection', function () {
     $user = User::factory()->create();
     $this->withSession(['strava_oauth_state' => 'correct-state']);

@@ -18,6 +18,7 @@ const chartLabels = computed(() => props.runs.map((r) => r.date));
 const chartDatasets = computed(() => [
     { label: 'Dystans (km)', data: props.runs.map((r) => r.distance_km), borderColor: '#4f46e5', tension: 0.2 },
 ]);
+const tableRuns = computed(() => [...props.runs].reverse());
 
 const syncStrava = () => router.post(route('strava.sync'));
 
@@ -86,7 +87,7 @@ const submitGoal = () => goalForm.post(route('training-goals.store'), { onSucces
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="run in runs" :key="run.id" class="border-t">
+                                <tr v-for="run in tableRuns" :key="run.id" class="border-t">
                                     <td class="py-2">{{ run.date }}</td>
                                     <td class="py-2">{{ run.distance_km }} km</td>
                                     <td class="py-2">{{ run.duration_min }} min</td>
