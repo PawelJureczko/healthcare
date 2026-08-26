@@ -28,7 +28,8 @@ const startRestTimer = (seconds = 90) => {
 
 const markDone = async (set) => {
     set.status = 'done'; // optimistic
-    await updateGymSet(set.id, { weight_kg: set.weight_kg, reps: set.reps, status: 'done' });
+    const synced = await updateGymSet(set.id, { weight_kg: set.weight_kg, reps: set.reps, status: 'done' });
+    set.queued = !synced;
     startRestTimer();
 };
 
@@ -65,10 +66,13 @@ onUnmounted(() => {
                     <div v-for="set in gymExercise.gymSets" :key="set.id" class="flex items-center gap-3 py-2 border-t first:border-t-0">
                         <span class="w-8 text-sm text-gray-500">#{{ set.set_number }}</span>
                         <span class="text-sm text-gray-500 w-32">plan: {{ set.planned_weight_kg ?? '—' }} kg × {{ set.planned_reps }}</span>
-                        <TextInput type="number" step="0.5" placeholder="kg" v-model="set.weight_kg" class="w-24" />
-                        <TextInput type="number" placeholder="powt." v-model="set.reps" class="w-24" />
+                        <TextInput type="number" step="0.5" placeholder="kg" v-model.number="set.weight_kg" class="w-24" />
+                        <TextInput type="number" placeholder="powt." v-model.number="set.reps" class="w-24" />
                         <PrimaryButton v-if="set.status !== 'done'" @click="markDone(set)" class="text-lg py-3 px-6">✓ Zrobione</PrimaryButton>
-                        <span v-else class="text-green-600 font-semibold">✓ Zrobione</span>
+                        <span v-else class="text-green-600 font-semibold">
+                            ✓ Zrobione
+                            <span v-if="set.queued" class="text-xs text-amber-600 ml-2">(oczekuje na synchronizację)</span>
+                        </span>
                     </div>
                 </div>
 

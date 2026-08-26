@@ -13,8 +13,6 @@ class ExerciseHistory
      */
     public static function lastWeights(User $user, array $exerciseIds): array
     {
-        $latestWorkoutDates = [];
-
         $workouts = Workout::forUser($user)
             ->where('type', 'gym')
             ->with(['gymExercises' => function ($query) use ($exerciseIds) {

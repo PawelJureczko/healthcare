@@ -18,7 +18,7 @@ class GymSetController extends Controller
         // excludes the other user's workout and the relation resolves to
         // null — so the ownership check must bypass the scope to actually
         // read who owns the workout, rather than relying on it to filter.
-        $workoutUserId = $gymSet->gymExercise->workout()
+        $workoutUserId = (int) $gymSet->gymExercise->workout()
             ->withoutGlobalScope(UserOwnedScope::class)
             ->value('user_id');
 

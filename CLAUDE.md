@@ -182,6 +182,34 @@ zawierającym dane osobiste NIE dostaje własnego `user_id`/`BelongsToUser`
 przez bezpośrednie zapytanie do tabeli podrzędnej poza wewnętrznym kodem
 deduplikacji/lookupu.
 
+### Sprawdzanie właściciela przez relację bez własnego scope'a
+
+Gdy sprawdzasz właściciela zasobu przez relację prowadzącą do modelu z
+`BelongsToUser` (np. `GymSet` → `gymExercise` → `workout`, gdzie ani `GymSet`
+ani `GymExercise` nie mają własnego `user_id`), **NIE** odczytuj właściciela
+przez zwykły dostęp do relacji (`$gymSet->gymExercise->workout->user_id`).
+Globalny scope na `Workout` filtruje zapytanie leżące u podstaw tej relacji
+do zalogowanego użytkownika — dla kogoś, kto NIE jest właścicielem, relacja
+zwróci `null`, a odczyt `->user_id` na `null` rzuci błędem 500 zamiast
+zwrócić czyste 404. Zamiast tego obejdź scope jawnie, dokładnie tak jak robi
+to `scopeForUser()` w `BelongsToUser`:
+
+```php
+$ownerId = $gymSet->gymExercise->workout()
+    ->withoutGlobalScope(UserOwnedScope::class)
+    ->value('user_id');
+
+abort_unless($ownerId === $request->user()->id, 404);
+```
+
+Odkryte i naprawione w M3 (`GymSetController::update()`) — pierwszy w tej
+aplikacji endpoint mutujący zasób bez własnego scope'a. Zasada dotyczy
+każdego przyszłego endpointu o tym samym kształcie (tabela podrzędna bez
+`user_id`, właściciel osiągalny tylko przez łańcuch relacji do modelu z
+`BelongsToUser`) — istotne zwłaszcza dla M4, które będzie działać w
+kontekście kolejki (queue worker), gdzie `Auth::check()` jest zawsze `false`
+i ten sam błąd łatwiej przeoczyć.
+
 ## Milestone'y
 
 M0 (fundament) i M1 (Ciało i zdrowie) ukończone, M2 (Bieganie + Strava)

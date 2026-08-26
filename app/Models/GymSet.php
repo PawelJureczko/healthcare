@@ -9,8 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Subordinate to GymExercise (and transitively to Workout) — deliberately
  * NOT BelongsToUser (no user_id). Any endpoint that MUTATES a GymSet must
- * explicitly verify ownership via gymExercise->workout->user_id, since
- * there is no global scope to rely on (see Task 6's GymSetController).
+ * explicitly verify ownership, and must NOT do so via a plain
+ * gymExercise->workout->user_id relation access: Workout's BelongsToUser
+ * global scope filters that relation to the currently authenticated user,
+ * so for a non-owner it resolves to null and ->user_id on null throws a
+ * 500 instead of yielding a clean 404. Bypass the scope explicitly instead,
+ * as GymSetController::update() does:
+ *
+ *     $ownerId = $gymSet->gymExercise->workout()
+ *         ->withoutGlobalScope(UserOwnedScope::class)
+ *         ->value('user_id');
+ *
+ *     abort_unless($ownerId === $request->user()->id, 404);
  */
 class GymSet extends Model
 {

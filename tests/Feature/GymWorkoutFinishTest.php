@@ -38,3 +38,17 @@ test('a user cannot finish another users workout', function () {
         ->post("/silownia/{$workout->id}/zakoncz", ['back_pain_rating' => 2, 'wellbeing_rating' => 3])
         ->assertNotFound();
 });
+
+test('a run workout cannot be viewed or finished via the gym endpoints', function () {
+    $user = User::factory()->create();
+    $runWorkout = Workout::factory()->for($user)->create(['type' => 'run', 'status' => 'planned']);
+
+    $this->actingAs($user)->get("/silownia/{$runWorkout->id}")->assertNotFound();
+
+    $this->actingAs($user)
+        ->post("/silownia/{$runWorkout->id}/zakoncz", ['back_pain_rating' => 2, 'wellbeing_rating' => 3])
+        ->assertNotFound();
+
+    $runWorkout->refresh();
+    expect($runWorkout->status)->toBe('planned');
+});

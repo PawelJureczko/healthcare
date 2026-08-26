@@ -20,6 +20,7 @@ class GymWorkoutController extends Controller
         $workouts = Workout::forUser($request->user())
             ->where('type', 'gym')
             ->orderByDesc('date')
+            ->orderByDesc('id')
             ->get(['id', 'date', 'status', 'back_pain_rating', 'wellbeing_rating'])
             ->map(fn ($workout) => [
                 'id' => $workout->id,
@@ -78,7 +79,7 @@ class GymWorkoutController extends Controller
 
     public function show(Request $request, Workout $workout): Response
     {
-        abort_unless($workout->user_id === $request->user()->id, 404);
+        abort_unless($workout->user_id === $request->user()->id && $workout->type === 'gym', 404);
 
         $workout->load('gymExercises.exercise', 'gymExercises.gymSets');
         $exerciseIds = $workout->gymExercises->pluck('exercise_id')->all();
@@ -113,14 +114,14 @@ class GymWorkoutController extends Controller
 
     public function finishForm(Request $request, Workout $workout): Response
     {
-        abort_unless($workout->user_id === $request->user()->id, 404);
+        abort_unless($workout->user_id === $request->user()->id && $workout->type === 'gym', 404);
 
         return Inertia::render('GymWorkouts/Finish', ['workoutId' => $workout->id]);
     }
 
     public function finish(FinishGymWorkoutRequest $request, Workout $workout): RedirectResponse
     {
-        abort_unless($workout->user_id === $request->user()->id, 404);
+        abort_unless($workout->user_id === $request->user()->id && $workout->type === 'gym', 404);
 
         $workout->update([
             ...$request->validated(),
