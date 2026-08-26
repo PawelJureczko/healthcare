@@ -65,6 +65,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/silownia/nowy', [GymWorkoutController::class, 'create'])->name('gym-workouts.create');
     Route::post('/gym-workouts', [GymWorkoutController::class, 'store'])->name('gym-workouts.store');
     Route::get('/silownia/{workout}', [GymWorkoutController::class, 'show'])->name('gym-workouts.show');
+    Route::get('/silownia/{workout}/zakoncz', [GymWorkoutController::class, 'finishForm'])->name('gym-workouts.finish.form');
+    Route::post('/silownia/{workout}/zakoncz', [GymWorkoutController::class, 'finish'])->name('gym-workouts.finish');
     Route::patch('/gym-sets/{gymSet}', [GymSetController::class, 'update'])->name('gym-sets.update');
 
     Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');

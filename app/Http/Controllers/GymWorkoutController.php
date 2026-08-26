@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FinishGymWorkoutRequest;
 use App\Http\Requests\StoreGymWorkoutRequest;
 use App\Models\Exercise;
 use App\Models\Workout;
@@ -108,5 +109,24 @@ class GymWorkoutController extends Controller
                 ]),
             ],
         ]);
+    }
+
+    public function finishForm(Request $request, Workout $workout): Response
+    {
+        abort_unless($workout->user_id === $request->user()->id, 404);
+
+        return Inertia::render('GymWorkouts/Finish', ['workoutId' => $workout->id]);
+    }
+
+    public function finish(FinishGymWorkoutRequest $request, Workout $workout): RedirectResponse
+    {
+        abort_unless($workout->user_id === $request->user()->id, 404);
+
+        $workout->update([
+            ...$request->validated(),
+            'status' => 'completed',
+        ]);
+
+        return redirect()->route('gym-workouts.index')->with('status', 'gym-workout-finished');
     }
 }
