@@ -4,6 +4,7 @@ use App\Http\Controllers\BloodPressureReadingController;
 use App\Http\Controllers\BodyMeasurementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\GymWorkoutController;
 use App\Http\Controllers\LabMarkerController;
 use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicationController;
@@ -58,6 +59,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cwiczenia', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::post('/cwiczenia', [ExerciseController::class, 'store'])->name('exercises.store');
+
+    Route::get('/silownia/nowy', [GymWorkoutController::class, 'create'])->name('gym-workouts.create');
+    Route::post('/gym-workouts', [GymWorkoutController::class, 'store'])->name('gym-workouts.store');
 
     Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');
     Route::get('/integracje/strava/polacz', [StravaConnectionController::class, 'redirect'])->name('strava.connect');
