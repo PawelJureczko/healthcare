@@ -102,3 +102,25 @@ test('the dashboard shows no active goal when none exists', function () {
         ->where('running.activeGoal', null)
         ->where('running.stravaConnected', false));
 });
+
+test('the dashboard exposes the last back pain rating and whether a gym workout is planned', function () {
+    $user = \App\Models\User::factory()->create();
+    \App\Models\Workout::factory()->for($user)->create(['type' => 'gym', 'status' => 'completed', 'date' => '2026-08-01', 'back_pain_rating' => 4]);
+    \App\Models\Workout::factory()->for($user)->create(['type' => 'gym', 'status' => 'planned', 'date' => '2026-08-20']);
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('gym.lastBackPainRating', 4)
+        ->where('gym.hasPlannedWorkout', true));
+});
+
+test('the dashboard gym section is empty when there are no gym workouts', function () {
+    $user = \App\Models\User::factory()->create();
+
+    $response = $this->actingAs($user)->get('/dashboard');
+
+    $response->assertInertia(fn ($page) => $page
+        ->where('gym.lastBackPainRating', null)
+        ->where('gym.hasPlannedWorkout', false));
+});

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BloodPressureReading;
+use App\Models\Workout;
 use App\Services\ReminderStatus;
 use App\Services\TrainingGoalProgress;
 use App\Services\WeightTrend;
@@ -34,6 +35,18 @@ class DashboardController extends Controller
 
         $activeGoal = $user->trainingGoals()->where('type', 'run_distance')->where('status', 'active')->latest('target_date')->first();
 
+        $lastCompletedGymWorkout = Workout::forUser($user)
+            ->where('type', 'gym')
+            ->where('status', 'completed')
+            ->whereNotNull('back_pain_rating')
+            ->latest('date')
+            ->first();
+
+        $hasPlannedGymWorkout = Workout::forUser($user)
+            ->where('type', 'gym')
+            ->where('status', 'planned')
+            ->exists();
+
         return Inertia::render('Dashboard', [
             'weight' => [
                 'sevenDayAverage' => $currentWeight,
@@ -55,6 +68,10 @@ class DashboardController extends Controller
                     'progressPercent' => TrainingGoalProgress::percent($activeGoal),
                 ] : null,
                 'stravaConnected' => (bool) $user->stravaConnection,
+            ],
+            'gym' => [
+                'lastBackPainRating' => $lastCompletedGymWorkout?->back_pain_rating,
+                'hasPlannedWorkout' => $hasPlannedGymWorkout,
             ],
         ]);
     }

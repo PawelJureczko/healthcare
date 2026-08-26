@@ -10,6 +10,7 @@ const props = defineProps({
     weight: { type: Object, required: true },
     health: { type: Object, required: true },
     running: { type: Object, required: true },
+    gym: { type: Object, required: true },
 });
 
 const weightForm = useForm({
@@ -105,6 +106,19 @@ const syncStrava = () => router.post(route('strava.sync'));
                             Pobierz ze Stravy
                         </button>
                         <Link :href="route('runs.index')" class="text-sm text-indigo-600 hover:underline">Zobacz biegi →</Link>
+                    </div>
+                </div>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Siłownia</h3>
+                    <p class="text-sm text-gray-600">
+                        Ostatnia ocena bólu pleców:
+                        <span class="font-medium text-gray-900">{{ gym.lastBackPainRating ?? 'brak wpisów' }}</span>
+                    </p>
+                    <p v-if="gym.hasPlannedWorkout" class="text-sm text-indigo-600 mt-1">Masz zaplanowany trening.</p>
+                    <div class="mt-3 flex flex-wrap items-center gap-3">
+                        <Link :href="route('gym-workouts.create')" class="text-sm text-indigo-600 hover:underline">Rozpocznij trening →</Link>
+                        <Link :href="route('gym-workouts.index')" class="text-sm text-indigo-600 hover:underline">Historia →</Link>
                     </div>
                 </div>
             </div>
