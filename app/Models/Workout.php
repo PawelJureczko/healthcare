@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Workout extends Model
@@ -19,6 +20,7 @@ class Workout extends Model
         'status',
         'comment',
         'wellbeing_rating',
+        'back_pain_rating',
     ];
 
     protected function casts(): array
@@ -41,5 +43,10 @@ class Workout extends Model
     public function sportSession(): HasOne
     {
         return $this->hasOne(SportSession::class);
+    }
+
+    public function gymExercises(): HasMany
+    {
+        return $this->hasMany(GymExercise::class)->orderBy('order');
     }
 }
