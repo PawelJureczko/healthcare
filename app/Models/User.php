@@ -78,4 +78,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reminder::class);
     }
+
+    public function stravaConnection(): HasOne
+    {
+        return $this->hasOne(StravaConnection::class);
+    }
+
+    public function trainingGoals(): HasMany
+    {
+        return $this->hasMany(TrainingGoal::class);
+    }
+
+    public function workouts(): HasMany
+    {
+        return $this->hasMany(Workout::class);
+    }
 }
