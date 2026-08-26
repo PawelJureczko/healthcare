@@ -8,6 +8,7 @@ use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\Strava\StravaSyncController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,6 +41,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/przypomnienia', [ReminderController::class, 'index'])->name('reminders.index');
     Route::post('/reminders', [ReminderController::class, 'store'])->name('reminders.store');
     Route::patch('/reminders/{reminder}', [ReminderController::class, 'update'])->name('reminders.update');
+
+    Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');
 });
 
 require __DIR__.'/auth.php';
