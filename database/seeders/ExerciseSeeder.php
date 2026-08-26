@@ -22,6 +22,7 @@ class ExerciseSeeder extends Seeder
             ['name' => 'Martwy ciąg klasyczny', 'muscle_group' => 'plecy', 'lumbar_risk' => true],
             ['name' => 'Martwy ciąg na gumach/kettlebell', 'muscle_group' => 'plecy', 'lumbar_risk' => false],
             ['name' => 'Wiosłowanie sztangą w opadzie', 'muscle_group' => 'plecy', 'lumbar_risk' => true],
+            ['name' => 'Wiosłowanie na maszynie', 'muscle_group' => 'plecy', 'lumbar_risk' => false],
             ['name' => 'Hip thrust', 'muscle_group' => 'pośladki', 'lumbar_risk' => false],
             ['name' => 'Podciąganie na drążku', 'muscle_group' => 'plecy', 'lumbar_risk' => false],
             ['name' => 'Wykroki z hantlami', 'muscle_group' => 'nogi', 'lumbar_risk' => false],
