@@ -8,6 +8,7 @@ use App\Http\Controllers\LabResultController;
 use App\Http\Controllers\MedicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReminderController;
+use App\Http\Controllers\RunController;
 use App\Http\Controllers\Strava\StravaConnectionController;
 use App\Http\Controllers\Strava\StravaSyncController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/przypomnienia', [ReminderController::class, 'index'])->name('reminders.index');
     Route::post('/reminders', [ReminderController::class, 'store'])->name('reminders.store');
     Route::patch('/reminders/{reminder}', [ReminderController::class, 'update'])->name('reminders.update');
+
+    Route::get('/biegi', [RunController::class, 'index'])->name('runs.index');
+    Route::get('/biegi/nowy', [RunController::class, 'create'])->name('runs.create');
+    Route::post('/runs', [RunController::class, 'store'])->name('runs.store');
 
     Route::post('/integracje/strava/synchronizuj', StravaSyncController::class)->name('strava.sync');
     Route::get('/integracje/strava/polacz', [StravaConnectionController::class, 'redirect'])->name('strava.connect');
