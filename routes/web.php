@@ -4,6 +4,7 @@ use App\Http\Controllers\BloodPressureReadingController;
 use App\Http\Controllers\BodyMeasurementController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\ExerciseProgressionController;
 use App\Http\Controllers\GymSetController;
 use App\Http\Controllers\GymWorkoutController;
 use App\Http\Controllers\LabMarkerController;
@@ -60,6 +61,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cwiczenia', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::post('/cwiczenia', [ExerciseController::class, 'store'])->name('exercises.store');
+    Route::get('/cwiczenia/{exercise}/progresja', [ExerciseProgressionController::class, 'show'])->name('exercises.progression');
 
     Route::get('/silownia', [GymWorkoutController::class, 'index'])->name('gym-workouts.index');
     Route::get('/silownia/nowy', [GymWorkoutController::class, 'create'])->name('gym-workouts.create');
