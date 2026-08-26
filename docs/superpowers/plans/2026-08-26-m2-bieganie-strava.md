@@ -3059,3 +3059,49 @@ git commit -m "test(m2): add isolation coverage for workouts, runs, goals and st
   `StravaSyncService` oraz testach izolacji — nazwa i sygnatura nie driftują między taskami.
   `TrainingGoalProgress::percent()`/`refreshStatus()` mają dokładnie te same sygnatury
   wszędzie, gdzie są wywoływane (Task 8, 9, oraz `StravaSyncService` z Task 4/8).
+
+## M2 — Status: UKOŃCZONY (2026-08-26)
+
+Wszystkie 10 zadań zaimplementowane, każde zrecenzowane osobno (wszystkie zatwierdzone bez
+istotnych zastrzeżeń), plus finalny przegląd całej gałęzi (opus). Finalny przegląd znalazł
+1 błąd krytyczny i 4 istotne — wszystkie naprawione w jednej fali poprawek, zweryfikowane
+przez ponowny, zakresowy przegląd (wszystkie 11 ustaleń potwierdzone jako naprawione, zero
+nowych regresji). Finalna liczba testów: **121/121**.
+
+Naprawione w finalnym review:
+- **Krytyczne:** obejście CSRF w przepływie OAuth Stravy — `callback()` przepuszczał sfałszowane
+  żądanie, gdy w sesji nie było oczekiwanego `state` i żądanie też go nie zawierało
+  (`null !== null`). Naprawione przez wymóg realnego stringa + `hash_equals()`, dodano test
+  regresyjny.
+- **Istotne:** `/biegi` i `/sporty` były nieosiągalne z nawigacji (plan nie przewidział edycji
+  `AuthenticatedLayout.vue` — defekt planu, nie wykonawcy). Dodano linki w obu listach nawigacji.
+- **Istotne:** synchronizacja przyrostowa Stravy mogła bezpowrotnie pominąć trening wysłany do
+  Stravy z opóźnieniem (zegarek zsynchronizowany później niż dzień biegu) — dodano 7-dniowe
+  okno zakładkowe na kursorze `after` (deduplikacja po `strava_activity_id` czyni to bezpieczne).
+- **Istotne:** synchronizacja nie miała obsługi błędów (surowe 500 przy awarii API Stravy) ani
+  limitu stron (teoretyczna nieskończona pętla) — dodano try/catch w kontrolerze i twardy limit
+  50 stron w serwisie.
+- **Istotne:** komunikaty flash (`status`) ustawiane przez kontrolery (M0/M1/M2) nigdy nie były
+  renderowane w UI — dodano współdzielenie `flash.status` przez Inertię i baner w
+  `AuthenticatedLayout.vue` z polskimi komunikatami (mapa znanych statusów + generyczny fallback
+  dla starszych, nieskatalogowanych wartości z M0/M1).
+- **Drobne (dołączone do fali poprawek):** zabezpieczenie przed zniekształconą aktywnością Stravy
+  (brak `id`/`start_date_local` powodował powtarzalny import); wcześniejsze odświeżanie tokenu
+  (5 min zapasu zamiast czekania na wygaśnięcie); szyfrowanie tokenów Stravy w bazie (`encrypted`
+  cast); przechwycenie wyścigu przy deduplikacji (`QueryException` zamiast nieobsłużonego
+  wyjątku); kolejność „Historia" biegów najnowsze-najpierw (wykres zostaje chronologiczny);
+  renderowanie `—` zamiast pustej intensywności dla sesji sportowych importowanych ze Stravy.
+
+Świadomie odłożone (udokumentowane w planie, nie porzucone po cichu):
+- `training_goals.type=weight` nie jest implementowany — cel wagowy już istnieje w
+  `profiles.weight_goal_kg` z M1.
+- Komentarz i ocena samopoczucia dla biegów zaimportowanych ze Stravy (spec §4.2/§5) nie mają
+  jeszcze ścieżki edycji — to dane wejściowe pętli korekty planu z M4, więc budowanie UI edycji
+  teraz byłoby wyprzedzeniem zakresu tego planu. Do zaadresowania w M3/M4.
+- Wykresy tempa/tętna i tygodniowego kilometrażu (spec §4.2) — plan przewidział tylko wykres
+  dystansu; rozszerzenie wykresów to osobna, świadoma decyzja zakresu, nie luka w wykonaniu.
+- Kosmetyczny drobiazg spoza fali poprawek: baner flash zawsze renderuje się w stylu
+  „sukces” (zielony), nawet dla komunikatów o błędzie (np. `strava-connect-failed`) — treść
+  jest poprawna po polsku, tylko kolorystyka nie rozróżnia sukcesu od błędu.
+
+Gotowe do M3 — Siłownia.
