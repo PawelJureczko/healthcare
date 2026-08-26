@@ -52,3 +52,20 @@ test('a guest cannot create a gym workout', function () {
     $this->post('/gym-workouts', ['date' => '2026-08-26', 'exercises' => []])
         ->assertRedirect('/login');
 });
+
+test('the gym workout index lists only the current users workouts, newest first', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    Workout::factory()->for($userA)->create(['type' => 'gym', 'date' => '2026-08-01', 'status' => 'completed', 'back_pain_rating' => 2]);
+    Workout::factory()->for($userA)->create(['type' => 'gym', 'date' => '2026-08-15', 'status' => 'planned']);
+    Workout::factory()->for($userB)->create(['type' => 'gym', 'date' => '2026-08-10']);
+
+    $response = $this->actingAs($userA)->get('/silownia');
+
+    $response->assertInertia(fn ($page) => $page
+        ->component('GymWorkouts/Index')
+        ->has('workouts', 2)
+        ->where('workouts.0.date', '2026-08-15')
+        ->where('workouts.1.back_pain_rating', 2));
+});

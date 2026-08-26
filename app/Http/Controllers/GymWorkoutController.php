@@ -14,6 +14,23 @@ use Inertia\Response;
 
 class GymWorkoutController extends Controller
 {
+    public function index(Request $request): Response
+    {
+        $workouts = Workout::forUser($request->user())
+            ->where('type', 'gym')
+            ->orderByDesc('date')
+            ->get(['id', 'date', 'status', 'back_pain_rating', 'wellbeing_rating'])
+            ->map(fn ($workout) => [
+                'id' => $workout->id,
+                'date' => $workout->date->format('Y-m-d'),
+                'status' => $workout->status,
+                'back_pain_rating' => $workout->back_pain_rating,
+                'wellbeing_rating' => $workout->wellbeing_rating,
+            ]);
+
+        return Inertia::render('GymWorkouts/Index', ['workouts' => $workouts]);
+    }
+
     public function create(Request $request): Response
     {
         $exercises = Exercise::orderBy('muscle_group')->orderBy('name')->get();

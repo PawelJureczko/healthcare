@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cwiczenia', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::post('/cwiczenia', [ExerciseController::class, 'store'])->name('exercises.store');
 
+    Route::get('/silownia', [GymWorkoutController::class, 'index'])->name('gym-workouts.index');
     Route::get('/silownia/nowy', [GymWorkoutController::class, 'create'])->name('gym-workouts.create');
     Route::post('/gym-workouts', [GymWorkoutController::class, 'store'])->name('gym-workouts.store');
 
