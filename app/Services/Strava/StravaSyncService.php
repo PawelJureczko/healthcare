@@ -5,7 +5,9 @@ namespace App\Services\Strava;
 use App\Models\Run;
 use App\Models\SportSession;
 use App\Models\StravaConnection;
+use App\Models\TrainingGoal;
 use App\Models\Workout;
+use App\Services\TrainingGoalProgress;
 use Illuminate\Support\Facades\DB;
 
 class StravaSyncService
@@ -35,6 +37,12 @@ class StravaSyncService
         } while (count($activities) === 100);
 
         $connection->update(['last_synced_at' => now()]);
+
+        TrainingGoal::forUser($connection->user_id)
+            ->where('type', 'run_distance')
+            ->where('status', 'active')
+            ->get()
+            ->each(fn ($goal) => TrainingGoalProgress::refreshStatus($goal));
 
         return $imported;
     }

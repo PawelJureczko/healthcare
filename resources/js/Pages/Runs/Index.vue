@@ -1,8 +1,11 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import InputError from '@/Components/InputError.vue';
 import LineChart from '@/Components/LineChart.vue';
 
 const props = defineProps({
@@ -17,6 +20,9 @@ const chartDatasets = computed(() => [
 ]);
 
 const syncStrava = () => router.post(route('strava.sync'));
+
+const goalForm = useForm({ target_distance_km: '', target_date: '' });
+const submitGoal = () => goalForm.post(route('training-goals.store'), { onSuccess: () => goalForm.reset() });
 </script>
 
 <template>
@@ -46,6 +52,22 @@ const syncStrava = () => router.post(route('strava.sync'));
                         <div class="bg-indigo-600 h-2.5 rounded-full" :style="{ width: activeGoal.progressPercent + '%' }"></div>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">{{ activeGoal.progressPercent }}% — na podstawie najdłuższego biegu</p>
+                </div>
+                <div v-else class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Ustaw cel biegowy</h3>
+                    <form @submit.prevent="submitGoal" class="flex flex-wrap items-end gap-3">
+                        <div>
+                            <InputLabel for="target_distance_km" value="Dystans (km)" />
+                            <TextInput id="target_distance_km" type="number" step="0.1" v-model="goalForm.target_distance_km" />
+                            <InputError :message="goalForm.errors.target_distance_km" />
+                        </div>
+                        <div>
+                            <InputLabel for="target_date" value="Data" />
+                            <TextInput id="target_date" type="date" v-model="goalForm.target_date" />
+                            <InputError :message="goalForm.errors.target_date" />
+                        </div>
+                        <PrimaryButton :disabled="goalForm.processing">Ustaw cel</PrimaryButton>
+                    </form>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">

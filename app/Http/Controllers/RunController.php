@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRunRequest;
 use App\Models\Workout;
+use App\Services\TrainingGoalProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,8 @@ class RunController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+
+        $activeGoal = $user->trainingGoals()->where('type', 'run_distance')->where('status', 'active')->latest('target_date')->first();
 
         $runs = Workout::forUser($user)
             ->where('type', 'run')
@@ -33,7 +36,12 @@ class RunController extends Controller
 
         return Inertia::render('Runs/Index', [
             'runs' => $runs,
-            'activeGoal' => null,
+            'activeGoal' => $activeGoal ? [
+                'id' => $activeGoal->id,
+                'target_distance_km' => round($activeGoal->target_distance_m / 1000, 2),
+                'target_date' => $activeGoal->target_date->format('Y-m-d'),
+                'progressPercent' => TrainingGoalProgress::percent($activeGoal),
+            ] : null,
             'stravaConnected' => (bool) $user->stravaConnection,
         ]);
     }
@@ -65,6 +73,12 @@ class RunController extends Controller
                 'avg_heart_rate' => $data['avg_heart_rate'] ?? null,
             ]);
         });
+
+        $request->user()->trainingGoals()
+            ->where('type', 'run_distance')
+            ->where('status', 'active')
+            ->get()
+            ->each(fn ($goal) => TrainingGoalProgress::refreshStatus($goal));
 
         return redirect()->route('runs.index')->with('status', 'run-saved');
     }
