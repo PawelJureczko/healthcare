@@ -37,5 +37,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(LabMarkerSeeder::class);
+        $this->call(ExerciseSeeder::class);
     }
 }
