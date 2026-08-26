@@ -74,4 +74,39 @@ class GymWorkoutController extends Controller
 
         return redirect("/silownia/{$workout->id}");
     }
+
+    public function show(Request $request, Workout $workout): Response
+    {
+        abort_unless($workout->user_id === $request->user()->id, 404);
+
+        $workout->load('gymExercises.exercise', 'gymExercises.gymSets');
+        $exerciseIds = $workout->gymExercises->pluck('exercise_id')->all();
+        $lastWeights = ExerciseHistory::lastWeights($request->user(), $exerciseIds);
+
+        return Inertia::render('GymWorkouts/Show', [
+            'workout' => [
+                'id' => $workout->id,
+                'date' => $workout->date->format('Y-m-d'),
+                'status' => $workout->status,
+                'gymExercises' => $workout->gymExercises->map(fn ($gymExercise) => [
+                    'id' => $gymExercise->id,
+                    'exercise' => [
+                        'id' => $gymExercise->exercise->id,
+                        'name' => $gymExercise->exercise->name,
+                        'lumbar_risk' => $gymExercise->exercise->lumbar_risk,
+                    ],
+                    'lastWeight' => $lastWeights[$gymExercise->exercise_id] ?? null,
+                    'gymSets' => $gymExercise->gymSets->map(fn ($set) => [
+                        'id' => $set->id,
+                        'set_number' => $set->set_number,
+                        'planned_weight_kg' => $set->planned_weight_kg !== null ? (float) $set->planned_weight_kg : null,
+                        'planned_reps' => $set->planned_reps,
+                        'weight_kg' => $set->weight_kg !== null ? (float) $set->weight_kg : null,
+                        'reps' => $set->reps,
+                        'status' => $set->status,
+                    ]),
+                ]),
+            ],
+        ]);
+    }
 }
